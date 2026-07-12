@@ -1,0 +1,24 @@
+[project]
+name = "hotel-pricing-data-platform"
+version = "1.0.0"
+description = "Multi-vendor hotel rate intelligence platform: Python ingestion -> dbt on DuckDB -> star schema"
+requires-python = ">=3.10"
+dependencies = [
+    "duckdb>=1.0",
+    "dbt-duckdb~=1.9",
+    "pandas>=2.0",
+    "pyarrow>=14.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.4"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
