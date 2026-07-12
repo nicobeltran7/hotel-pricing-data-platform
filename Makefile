@@ -11,6 +11,7 @@ ingest:  ## load vendor files into DuckDB (idempotent upsert + quarantine)
 	python3 src/ingest.py --raw-dir data/raw --db data/warehouse.duckdb
 
 seed:  ## stage the property reference file as a dbt seed
+	mkdir -p dbt/seeds
 	cp data/raw/properties.csv dbt/seeds/properties.csv
 	$(DBT) seed --profiles-dir .
 
@@ -30,4 +31,4 @@ docs:  ## generate dbt docs site into dbt/target
 	$(DBT) docs generate --profiles-dir .
 
 clean:
-	rm -rf data/warehouse.duckdb dbt/target exports
+	rm -rf data/warehouse.duckdb
