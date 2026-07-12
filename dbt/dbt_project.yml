@@ -1,0 +1,32 @@
+name: hotel_pricing
+version: "1.0.0"
+profile: hotel_pricing
+config-version: 2
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: target
+clean-targets: [target, dbt_packages]
+
+models:
+  hotel_pricing:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+
+seeds:
+  hotel_pricing:
+    +schema: reference
+    properties:
+      +column_types:
+        property_code: varchar
+        rooms: integer

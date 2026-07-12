@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Landing zone populated by src/ingest.py (upsert-by-natural-key).
+    schema: raw
+    tables:
+      - name: rate_observations
+        description: One row per vendor x property x date x duration band. Corrections overwrite in place.
+        columns:
+          - name: vendor_code
+            tests: [not_null]
+          - name: property_code
+            tests: [not_null]
+          - name: rate_date
+            tests: [not_null]
+          - name: rate_usd
+            tests: [not_null]
+      - name: quarantine
+        description: Rows rejected at ingestion with a reason_code. Never silently dropped.

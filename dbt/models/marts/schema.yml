@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: dim_date
+    columns:
+      - name: date_key
+        tests: [unique, not_null]
+
+  - name: dim_property
+    columns:
+      - name: property_code
+        tests: [unique, not_null]
+      - name: market_code
+        tests: [not_null]
+
+  - name: dim_duration_band
+    columns:
+      - name: duration_band
+        tests: [unique, not_null]
+
+  - name: fct_daily_rates
+    description: Dense daily rate series per property x duration band. Gap-filled rows flagged.
+    tests:
+      - dbt_utils_unique_combination_stub:
+          combination_of: [date_key, property_code, duration_band]
+    columns:
+      - name: date_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: property_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_property')
+              field: property_code
+      - name: duration_band
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["1N", "2-3N", "4-6N", "7+N"]
+          - relationships:
+              to: ref('dim_duration_band')
+              field: duration_band
+      - name: filled_rate
+        tests: [not_null, positive_value]

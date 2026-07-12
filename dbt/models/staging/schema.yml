@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_rate_observations
+    description: Typed staging layer over raw rate observations.
+    columns:
+      - name: rate_usd
+        tests:
+          - not_null
+          - positive_value
+      - name: duration_band
+        tests:
+          - accepted_values:
+              values: ["1N", "2-3N", "4-6N", "7+N"]
