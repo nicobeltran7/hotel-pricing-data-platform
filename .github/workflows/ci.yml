@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check src/ tests/
+
+      - name: Unit tests (ingestion layer)
+        run: python -m pytest tests/ -q
+
+      - name: Generate synthetic data
+        run: make generate
+
+      - name: Ingest to DuckDB
+        run: make ingest
+
+      - name: dbt seed + build (models + schema/singular tests)
+        run: |
+          make seed
+          make build
+
+      - name: Export marts to parquet
+        run: make export
+
+      - name: Prove idempotency (second ingest must not change row counts)
+        run: |
+          python3 - <<'EOF'
+          import duckdb, subprocess
+          before = duckdb.connect('data/warehouse.duckdb', read_only=True).execute(
+              'SELECT COUNT(*) FROM raw.rate_observations').fetchone()[0]
+          subprocess.run(['make', 'ingest'], check=True)
+          after = duckdb.connect('data/warehouse.duckdb', read_only=True).execute(
+              'SELECT COUNT(*) FROM raw.rate_observations').fetchone()[0]
+          assert before == after, f"ingest not idempotent: {before} -> {after}"
+          print(f"idempotency OK ({after:,} rows)")
+          EOF
