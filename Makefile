@@ -31,4 +31,4 @@ docs:  ## generate dbt docs site into dbt/target
 	$(DBT) docs generate --profiles-dir .
 
 clean:
-	rm -rf data/warehouse.duckdb
+	rm -rf data/warehouse.duckdb dbt/target exports
