@@ -1,9 +1,9 @@
--- The transformation showpiece: build a complete date spine per
--- property x duration band, blend vendors into a daily median, then
--- forward-fill observation gaps with window functions.
+-- Builds a complete date spine per property x duration band, blends
+-- vendors into a daily median, and forward-fills observation gaps.
 --
 -- Vendors shop irregularly, so raw coverage has holes. Downstream BI
--- needs a dense daily series; is_gap_filled keeps the fill honest.
+-- needs a dense daily series; is_gap_filled marks which values are
+-- carried forward rather than observed.
 
 with bounds as (
 
