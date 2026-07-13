@@ -71,3 +71,15 @@ class TestUpsert:
         upsert(con, frame([("V2", "AUS001", "2026-01-01", "1N", "105")]))
         n = con.execute("SELECT COUNT(*) FROM raw.rate_observations").fetchone()[0]
         assert n == 2
+
+
+class TestQuarantine:
+    def test_quarantine_handles_missing_values(self, con):
+        """Regression: NaN in quarantined rows must not break raw_record join (pandas>=3 astype behavior)."""
+        from ingest import quarantine
+        df = frame([("V", None, "2026-01-01", "1N", None)])
+        df["reason_code"] = "MISSING_PROPERTY"
+        n = quarantine(con, df, "test_file.csv")
+        assert n == 1
+        rec = con.execute("SELECT raw_record, reason_code FROM raw.quarantine").fetchone()
+        assert rec[1] == "MISSING_PROPERTY" and "V|" in rec[0]

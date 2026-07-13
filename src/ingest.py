@@ -132,7 +132,7 @@ def quarantine(con: duckdb.DuckDBPyConnection, df: pd.DataFrame, source_file: st
         {
             "vendor_code": df["vendor_code"],
             "source_file": source_file,
-            "raw_record": df[NORMALIZED_COLS].astype(str).agg("|".join, axis=1),
+            "raw_record": df[NORMALIZED_COLS].fillna("").astype(str).agg("|".join, axis=1),
             "reason_code": df["reason_code"],
             "loaded_at": datetime.now(timezone.utc).replace(tzinfo=None),
         }
